@@ -45,3 +45,38 @@ Here we present parallel categories plots representing the architectures selecte
 \caption{Parallel categories plots of the 20 architectures selected by SMAC (top) RE (middle) and \irace (bottom) with variable number of nodes, no caching (left), caching (right).}
 \label{fig:pc-vnn}
 \end{figure*}
+
+\section{Runtime statistics}
+Here we give runtime (wallclock) statistics for all three algorithms in their different experimental setups in Figure~\ref{fig:wallclock-times}. Abbreviations for experimental setups are used as in the paper: O for original; VS for variable-sized; C for caching; and CVS for caching and variable-sized. Runtime along the $y$ axis is given in hours:minutes:seconds format.
+
+% \begin{figure*}
+% 	\centering
+
+% 	\begin{subfigure}[t]{0.3\textwidth}
+% 	\centering\includegraphics[width=\textwidth]{imgs/irace-times-boxplots.png}
+% 	% \caption{\irace}
+% 	\end{subfigure}
+% 	\begin{subfigure}[t]{0.3\textwidth}
+% 	\centering\includegraphics[width=\textwidth]{imgs/smac-times-boxplots.png}
+% 	% \caption{SMAC}
+% 	\end{subfigure}[t]{0.3\textwidth}
+% 	\begin{subfigure}
+% 	\centering\includegraphics[width=\textwidth]{imgs/regev-times-boxplots.png}
+% 	% \caption{RE}
+% 	\end{subfigure}
+
+% 	\caption{Boxplots representing wallclock runtimes (over 20 runs) of each algorithm under different experimental setups}
+% 	\label{fig:wallclock-times}
+% \end{figure*}
+
+\begin{figure*}
+\centerline{%
+\subfigure[\irace]{\includegraphics[width=0.3\textwidth]{imgs/irace-times-boxplots.png}}
+\hfil
+\subfigure[SMAC]{\includegraphics[width=0.3\textwidth]{imgs/smac-times-boxplots.png}}
+\hfil
+\subfigure[RE]{\includegraphics[width=0.3\textwidth]{imgs/regev-times-boxplots.png}}
+}
+\caption{Boxplots representing wallclock runtimes (over 20 runs) of each algorithm under different experimental setups}
+\label{fig:wallclock-times}
+\end{figure*}
