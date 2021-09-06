@@ -1,0 +1,34 @@
+%!TEX root = ../emo.tex
+\section{Enriching the Insights from \nasbench}
+\label{sec:guidelines}
+
+As discussed above, \nasbench is a very relevant effort towards comparability in NAS research, and a promising testbed for novel algorithms. In this section, we discuss how to further benefit from it. Concretely, we first consider how anytime performance assessment complements final-quality. Next, we discuss the design choices that define \nasbench, specifically the fixed number of nodes, the limited variability provided, and the stopping criterion adopted. Finally, we discuss the suggested experimental guidelines, in particular the number of repetitions for algorithm evaluation.
+
+%\begin{description}[style=unboxed, leftmargin=0px]
+\subsection{Evaluating Anytime Performance}
+%\item[Evaluating anytime performance.]
+The original evaluation setup for \nasbench assesses algorithms based on the selected cell architecture performance. Specifically, authors compute the empirical cumulative distribution function~(ECDF) in this final-quality approach (though they do not aggregate ECDFs for conclusions). However common in the optimization literature, this approach greatly reduces the benefits of having a pre-computed benchmark, especially given the extremely large TPU computation time available to NAS algorithms. By contrast, a very large budget is an asset to anytime assessment, as it covers a wide range of different scenarios practitioners may encounter.
+
+One limitation with a bi-objective formulation for anytime performance is that the performance of algorithms must comprise a monotonic curve~(the Pareto front). Yet, in machine learning this is only expected for validation error, and it is very likely that an algorithm that performs exceedingly well on validation will decrease its performance on testing due to overfitting. Two alternative solutions can be considered in this context. The first is to render performance curves monotonic. The practical interpretation of this choice is that all best-so-far cell architectures identified by the algorithm would have to be tested when arbitrary stopping criteria were required.%
+\footnote{We assume that TPU availability for testing is not an issue, as it is expected to be negligible in comparison to training time.} 
+A second alternative is to compute the area under the curve depicted by the Pareto front, though without an assurance that conclusions will be Pareto-compliant. In the assessment we conduct in this paper, we opt for the first alternative, given the importance of Pareto-compliance.
+
+%\item[Experimental design choices.]
+\subsection{Experimental Design Choices}
+Solution encoding in \nasbench comprises a fixed-size adjacency matrix to represent a variable-size graph. In more detail, a 7x7-matrix is used to represent a DAG, and nodes that are not connected to the input are ruled out when computing metrics (along with their labels). An alternative is to have the number of nodes as part of the encoding and the sizes of the adjacency matrix and label list dependent on this variable. Though traditional algorithms are often unequiped to deal with such conditional parameters, ACs may explore this formulation to improve their search.
+
+Furthermore, to simulate the variability that experimental data generally has in practice, authors provided results for runs with three different seeds. Though relevant, we believe that the variance provided by this approach would not compensate for the added training time for given ACs. Specifically, algorithms that search the cell design space caching architecture performance will likely consider three times more architectures than algorithms that always query \nasbench. %Given the role of the cutoff time in optimization problems, this approach is expected to produce better results.
+
+Finally, algorithm comparison in \nasbench is based on TPU time alone,%
+\footnote{Though results are reported in that work concerning wallclock time (which should include CPU time), the code provided by the authors to replicate experiments only reports TPU time.}
+under the assumption that the CPU time spent by algorithms would be negligible in comparison. Though this is common practice in expensive function evaluation optimization, we argue that this assumption does not hold in a NAS scenario. However expensive, architecture evaluation is performed on TPU clusters, which are highly parallel. In contrast, algorithm processing is traditionally performed in CPUs, and if algorithms do not use an efficient parallel approach, a bottleneck at this point of the process is not compensated by additional TPU power. To preserve comparability with the results from \nasbench, we maintain the TPU-time assessment, but remark that some of the conclusions should be investigated in a wallclock-time-based future work.
+
+%\item[Suggested experimental guidelines.]
+\subsection{Suggested Experimental Guidelines}
+Among the suggestions from the \nasbench proposers to improve comparability between NAS algorithms is to use a large number of repetitions of the algorithms assessed. Indeed, authors employed 500 repetitions from each algorithm considered for a maximum TPU time of $10^7$ seconds per run. We argue against this practice, believing it is not realistic and can become counterproductive as follows. Probing algorithms for an excessively large number of repetitions with such a large cutoff time will produce statistics that have little practical meaning.
+%For instance, the ECDFs observed for the algorithms assessed in the original work include mean test regrets below $10^{-3}$ for several algorithms. However, the probability for those results is below 10\% for 500 repetitions (and often below 5\%). 
+A practitioner aiming at low-probability performance would be inclined to run a significant number of repetitions of the selected algorithm. Yet, NAS algorithms performance improves as a function of the computational budget provided. As such, a reduced number of repetitions using a larger cutoff time would likely produce better results than what the guidelines suggest. Though we cannot simulate the scenario with a budget larger than $10^7$ TPU seconds, we show how the relative performance of the algorithms is little affected by using a more reasonable number of repetitions.
+
+%\end{description}
+\medskip
+The discussion provided in this section evidences the number of ways in which we believe the insights obtained from \nasbench could be enriched. In the next section, we conduct a performance assessment of algorithms that were identified as high-performing in \nasbench, as well as \irace, which represents ACs that are able to combine parallelization with learning.

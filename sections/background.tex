@@ -1,0 +1,195 @@
+%!TEX root = ../emo.tex
+\section{Background}
+\label{sec:background}
+
+In this work, we bridge the research on NAS and anytime optimization. For context, we define NAS, its application to computer vision, and the inner works of \nasbench. Next, we detail the most relevant NAS algorithm classes, and discuss their performance on \nasbench. Finally, we review how a bi-objective formulation of optimization problems can model anytime performance.
+
+% \subsection{PROBLEM}
+% ADD COMPUTER VISION THINGY
+
+% HERE ABOUT ML HYPER-PARAMETERS + NEURAL ARQUITECTURE SEARCH
+\subsection{Neural Architecture Search~(NAS)}
+From a high-level perspective, NAS comprises the design and configuration of neural networks~\cite{ElsMetHut2019nas-survey}. In the context of deep learning, NAS is being instrumental to challenging fields such as computer vision~\cite{ReaAggHuaLe2019re,ZopLe2017nas,ZopVasShlLeh2018scalable}. Given the computational
+overhead it poses, different mitigation approaches have been considered, such as designing architecture cells that are replicated to become larger networks~\cite{ZopLe2017nas,ZopVasShlLeh2018scalable}. This is the approach followed by \nasbench, a benchmark of convolutional networks for CIFAR-10~\cite{Krizhevsky2009cifar}. Below, we detail the most important characteristics of this benchmark:
+
+\begin{description}[style=unboxed, leftmargin=0px]
+\item[Design space.] A cell is modeled as a directed acyclic graph~(DAG), where each node represents a neural network layer~(convolutional or pooling). The cell contains up to five layers (not counting input and output layers). Solutions are encoded as (i)~an adjacency matrix, which defines the topology of the cell, and; (ii)~a node label list, which determines the types of layers that will be employed. 
+\item[Architecture evaluation.] Performance metrics are provided for different stopping criteria run on tensor processing unit~(TPU) clusters. Besides TPU time, queries to the API provided training, validation, and test accuracy. Results are sampled from three different seeds for variability.
+\end{description}
+
+\subsection{NAS Algorithms and Their Performance on \nasbench}
+
+Three major classes of NAS algorithms can be identified in the literature~\cite{ElsMetHut2019nas-survey}, namely evolutionary algorithms~(EAs), algorithm configurators~(AC), and neural networks. In \cite{YinKleChrReaMurHut2019nasbench}, a set of relevant algorithms from each class were applied and compared on \nasbench. The algorithms were compared using as stopping criterion the total TPU time available for the search process~($10^7s$). In that comparison, multi-fidelity algorithms such as HyperBand~\cite{LiJamSal2018hyperband} could not benefit from the different stopping criteria provided. In turn, regularized evolution~(RE,~\cite{ReaAggHuaLe2019re}) and SMAC~\cite{HutHooLey2011lion} stood out. In the following, we give the details of both RE and SMAC. Next, we describe \irace~\cite{LopDubPerStuBir2016irace}, another relevant AC that we assess in this work.
+
+\begin{description}[style=unboxed, leftmargin=0px]
+\item[Regularized evolution] is a ($\mu$,1)-EA proposed for NAS that uses accuracy and aging for mating and environmental selection, respectively. In more detail, at each iteration RE maintains a population of candidate architectures. Best-performing architectures regarding accuracy are more likely to be selected to produce a novel candidate architecture. This is achieved by bit-flip mutation to an arbitrary edge, or by replacing an arbitrary node's label with a different label. The novel candidate architecture replaces the oldest candidate in the current population. In particular, authors argue that this aging-based environmental selection promotes regularization. 
+
+\item[SMAC] is a sequential, model-based algorithm configuration procedure. The configuration process in SMAC starts by performing the evaluation of an initial configuration (e.g. a parameter setting known for its good performance).
+Then, it alternates between
+(i) building a random forest model to predict configuration
+performance; (ii) searching the configuration space for promising configurations using
+the model as surrogate for performance assessment,
+and; (iii) evaluating the selected configurations on the target problem. 
+%The most successful applications of SMAC concern reducing  the runtime of heuristic algorithms.
+\end{description}
+
+The good performance obtained by SMAC indicates that out-of-the-box ACs have the potential to be good options for real NAS tasks.
+%, and thus these results show that such tasks can be approached by general out-of-the-box procedures like SMAC. 
+Yet, real NAS tasks pose an additional challenge regarding the computation time that is required for the configuration process. This aspect is not fully addressed in \nasbench, as the configuration task is assessed for final performance. %[CHECK THIS: not sure this is true!]. 
+In a real NAS task, the sequential nature of SMAC can be a drawback. 
+%Configurations must be evaluated and then performance data must be provided for model training and following sampling. 
+Compared to SMAC, HyperBand~(HB) has the advantage of being fully parallel, but HB applies limited learning on its search process, relying entirely on multi-fidelity. % and thus, its performance is not good. 
+Another potentially parallelizable algorithm is RE, given the maturity of  the literature on parallel EAs; yet, its current version is sequential. 
+%can be applied in parallel and good areas of the solution space are detected due to the evolutionary operators applied.
+In this work, we add to the evaluated methods an AC called \irace. Like RE, \irace can be classified as an EA and thus inherently parallelizable. In addition, \irace adopts a learning approach to detect high performing areas of the configuration space and focus on them, as described in the following.
+
+\begin{description}[style=unboxed, leftmargin=0px]
+\item[\irace] is an estimation of distribution algorithm
+that implements iterated racing for configuration
+evaluation.  The AC alternates
+between (i) applying a racing procedure in which a
+set of configurations is evaluated on subsets of training instances several times,
+and; (ii) updating a set of probability
+distributions used to sample a set of new configurations for a novel iteration (race). 
+At each race, candidate configurations are initially evaluated on a fixed number of instances.
+%times (by default 5).
+Once these evaluations are completed, a statistical test (Friedman's or Student's t-test) is applied to eliminate poor performing configurations from the race. 
+%The elimination test is applied after all configurations in the race complete a new evaluation. 
+This process continues until the budget assigned for the race is depleted (i.e. number of evaluations) or other convergence criteria are met. A new race is then started using configurations sampled from the updated probability distributions. The
+most successful applications of \irace refer to solution quality optimization,
+and more recently, it has also been applied to anytime optimization~\cite{LopStu2013ejor}.
+\end{description}   
+
+Note that for ACs a basic configuration scenario comprises (i)~the problem samples 
+provided; (ii)~the parameter/design space; (iii)~a performance metric, and; (iv)~the configuration budget. It is important to note that ACs were originally proposed to configure heuristic optimizers, and that some adjustments have to be done when applying them to AutoML.
+%Ad to machine learning reflect theseThe differences between configuration scenarios defined in optimization and machine learning require adjustments. 
+Hyperparameter tuning, for instance, uses folds to represent problem instance distributions. %, similarly to what ACs do in the context of optimization. % which affect the performance of configurators in different ways. 
+% A basic configuration 
+% scenario comprises (i) the parameter/design space; (ii) the problem samples 
+% provided (instances); (iii) a performance metric, and; (iv) the resources 
+% allowed for configuration. 
+% Good scenarios must reflect properly the design space, the available computational resources, and their adequate distribution. 
+% The performance measure in the configuration process is an estimation of the real performance across training samples and stochasticity. Furthermore, training and test paeseparation adopted by ACs, the concepts of over-tuning and generalization are very relevant for configurator performance. In the optimization context, training samples~(instances) are assumed to represent an underlying distribution of problem instances. On the other hand, the training samples in machine learning are commonly obtained from one dataset. 
+% the parallel with the optimization concept is achieved by creating different folds of this dataset. 
+But this is not an option in the deep learning context, as models are commonly trained repetitively on a single dataset. Hence, the application of ACs to deep learning model design is not trivial, as most ACs are not designed for this single-instance scenario and its lack of variability. Regarding parameter space, 
+the way design choices are encoded is critical for a benchmark like \nasbench, since the
+parameters should allow the configurator to detect good architecture components and their interactions. 
+
+Concerning performance, the measure adopted in the configuration process is an estimation of the real performance across training samples and stochasticity. In more detail, the  performance  estimation  required  to  assess  the  quality of a candidate configuration  is  commonly  calculated  by  aggregating the  results  obtained  from  multiple  evaluations  of  the  given configuration.  The  larger  the  variability  in  the  results,  the more  evaluations  will  be  required  for  a  precise  estimation. For this reason, both \irace and SMAC evaluate the same configuration multiple times. By contrast, RE follows the traditional approach in EAs of evaluating each candidate configuration only once. A configuration is re-evaluated only if it is produced in different generations~(iterations).
+
+\subsection{Anytime Optimization}
+
+Assessing and designing algorithms from the perspective of anytime
+optimization~\cite{LopStu2013ejor} means that algorithms should be high-performing regardless
+of the stopping criteria adopted. Though this is always desirable, 
+optimization algorithms are sensitive to the stopping
+criterion adopted, as a fast-converging search tends to lead to poor
+final-quality outcomes. In NAS, this is even more important given the
+cost of specialized computational resources. \nasbench, for instance,  
+reports results benchmarked for increasing stopping criteria. Yet, multi-fidelity
+approaches are unable to benefit from this to the extent expected, as mentioned.
+
+An alternative approach to anytime performance is to formulate the 
+underlying optimization problem as bi-objective, where resources consumed
+and solution quality are objectives to be minimized. Using this approach, the performance assessment theory
+devised for bi-objective optimization can be employed to draw Pareto-compliant
+conclusions, as follows:
+
+\begin{description}[style=unboxed, leftmargin=0px]
+\item[Set comparison relations.] Two sets of solutions that represent different compromise solutions between conflicting objectives can be compared using Pareto set comparison relations. Among the most relevant to our assessment, two solution sets $A$ and $B$ can be considered \textit{incomparable}.
+% if two conditions simultaneously hold. First, there must be at least one solution in $A$ that is better than a solution in $B$ for at least one of the objectives considered. Second, there must be at least one solution in $B$ that is better than a solution in $A$ for at least one of the objectives considered. 
+In the context of anytime performance where the conflicting objectives are resources consumed and solution quality, an example is an algorithm $A$ finding better solutions faster than another algorithm $B$, but being outperformed by $B$ in the long run. 
+\item [Unary performance measures~\cite{ZitThiLauFon2003:tec}.] In many practical situations, two solution sets will be deemed incomparable, but it is still possible to prefer one over another. This is captured by different unary performance measures, such as the hypervolume indicator. The hypervolume is also proven Pareto-compliant, which means that a set cannot be better than another if the hypervolume indicates the opposite. Unary indicators are also scalable as to the number of sets assessed, a desirable aspect in the assessment of optimization algorithms.
+\item [Empirical attainment functions~(EAFs)~\cite{LopPaqStu09emaa}.] A fine-grained comparison between two sets can help visualize what parts of the objective space are better achieved by each algorithm. EAFs are probability distribution density plots that indicate the frequency with which an algorithm finds solutions in a given region of the objective space. EAF difference plots compare a pair of algorithms by computing the difference in their EAFs, indicating which algorithm performs better in which region of the objective space and with what probability. 
+\end{description}
+
+% \leslie{In the next section, we discuss how we approach performance assessment in the context of \nasbench, and the design choices we address to enrich the insights obtained from it.}{}
+% Specifically, unary performance measures such as the hypervolume
+% indicator enable a scalable quantitative comparison, whereas qualitative 
+% approaches such as empirical attainment functions~(EAFs,~\cite{LopPaqStu09emaa}) provide a 
+% fine-grained comparison alternative.
+
+%\noindent\textbf{Automated algorithm configuration} is the task of
+%finding high-performing parameter settings for a target algorithm by
+%means of specialized procedures called configurators. Several
+%configurators have been proposed in different domains in which the
+%algorithm configuration task is relevant (\leslie{add references}). In
+%machine learning, this task is called hyperparameter tuning and it is
+%essencial to obtain high-quality models. Algorithm configuration is
+%often a highly complex problem that involves large parameter spaces
+%and performance measures (quality or time) that can only be estimated
+%due to stochasticity and/or the unknown final execution scenario
+%(e.g. problem instances).  From a general perspective, algorithm
+%configuration is one of the tasks involved in automated algorithm
+%engineering, a growing field that comprises algorithm configuration,
+%selection, design, and analysis~\cite{BezerraPhD}. Examples of such
+%approaches can be found in different domains like decision
+%problems~\cite{xu2008satzilla,xu2010hydra,hoos2014claspfolio,lindauer2015autofolio,khudabukhsh2016satenstein},
+%optimization~\cite{de2009frankenstein,dubois2011automatic,lopez2012automatic,mascia2014grammar,liao2014unified,BezLopStu2016tec},
+%controller
+%design~\cite{francesca2014automode,francesca2015automode,hasselmann2018automatic},
+%and machine
+%learning~\cite{autoweka,komer2014hyperopt,auto-sklearn,autonet,kotthoff2017auto}.
+%Both, algorithm selection and design can be mapped to an algorithm
+%configuration task by defining a parameter space in terms of templates
+%or encoded grammars that can express algorithmic designs available in
+%algorithmic frameworks. Examples of such frameworks in machine
+%learning are Auto-WEKA~\cite{autoweka} and
+%\autosklearn~\cite{auto-sklearn}. AutoML approaches powered by
+%configurators perform the search of the configuration spaces defined
+%by such frameworks. A proper definition of configuration scenarios is
+%critical to obtain good performance from AutoML approaches thus,
+%special attention should be given to scenario setup. A basic
+%configuration scenario comprises (i) the parameter space; (ii) the
+%problem samples provided (instances); (iii) a performance metric, and;
+%(iv) the resources allowed for configuration. Configuration scenarios
+%must reflect properly the parameter or design space, the available
+%computational resources, and the adequate distribution of these
+%resources.
+% \leslie{the text from now on could be removed if we need
+%  space as it might not be so relevant for the paper} Despite the
+%large number of configurators available in the literature, there is a
+%small number of configurators adopted in AutoML research. One likely
+%explanation is that many of these configurators were proposed in the
+%context of optimization algorithms and their application to machine
+%learning is not straightforward. For example, in optimization the
+%configuration is commonly performed over a set of representative
+%problem instances (training), while in machine learning configuration
+%is commonly performed in one or few data sets that are either folded
+%on different sets or divided in independent sets.\leslie{check this
+%  with leo}
+
+%\noindent\textbf{Algorithm configurators} can be classified as
+%\emph{model-free} or \emph{model-based}~\cite{BezLopStu2017}. The
+%former identify promising configurations using stochastic local search
+%or unsupervised learning~(e.g, ParamILS \cite{hutter2009paramils},
+%ISAC \cite{kadioglu2010isac}). Model-based configurators identify
+%promising regions of the configuration space by modeling the
+%relationship between hyperparameters and performance. Examples of such
+%configurators are SMAC~\cite{smac}, which powers Auto-WEKA and
+%\autosklearn, and \irace, which has not yet being applied to AutoML.
+%\irace is an \emph{estimation of distribution algorithm}~(EDA,
+%\cite{Lar2001eda}) that implements iterated racing for configuration
+%evaluation \leslie{add reference}.  The configurator alternates
+%between (i) the application of a \emph{racing procedure} in which a
+%set of configurations is evaluated on a subset of training instances
+%and selected, and; (ii) the update of a \emph{set of probability
+%distributions} used then for sampling new configurations. SMAC is a
+%sequential model-based optimization procedure that alternates between
+%(i) building a random forest model to predict configuration
+%performance; (ii) searching the model for promising configurations,
+%and; (iii) evaluating the selected configurations. Both configurators
+%implement a technique called \emph{sharpening} in which the
+%configurations that perform best are evaluated increasingly more times
+%incrementing the precision of their overall performance evaluation.\leslie{we miss the other configurator}
+%
+%
+
+
+
+
+
+
+%%% Local Variables:
+%%% TeX-master: "../emo"
+%%% End:

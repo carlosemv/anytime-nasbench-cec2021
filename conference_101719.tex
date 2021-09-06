@@ -1,4 +1,4 @@
-\documentclass[conference,letterpaper,retainorgcmds]{IEEEtran}
+\documentclass[conference,letterpaper]{IEEEtran}
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
@@ -6,26 +6,19 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
-\usepackage{enumitem}
 \usepackage{xcolor}
-\usepackage{todonotes}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
-   
-\usepackage{microtype}
-\usepackage[utf8]{inputenc} %
-\usepackage{subfigure}
-% \usepackage{caption}
-% \usepackage{subcaption}
+    
+\usepackage[utf8]{inputenc}
 \usepackage{booktabs}
-\usepackage{hyperref} %
+\usepackage{hyperref}
 \usepackage{xspace}
-\usepackage{listings}
-\usepackage{multirow}
-\usepackage{enumitem} %
+\usepackage{enumitem}
 \usepackage[normalem]{ulem}
 
 \newcommand{\leslie}[2]{{\sout{#1}}{ \color{magenta}#2}}
+%\newcommand{\leslie}[2]{{\color{magenta}#2}}
 \newcommand{\carlosstrike}[2]{{\sout{#1}}{ \color{cyan}#2}}
 \newcommand{\carlos}[1]{{\color{cyan}#1}}
 
@@ -40,13 +33,12 @@
 
 \begin{document}
 
-\title{Evaluating anytime performance on {NAS-Bench-101}
+\title{Evaluating Anytime Performance on NAS-Bench-101}
 % \thanks{Identify applicable funding agency here. If none, delete this.}
-}
 
 \author{\IEEEauthorblockN{Carlos Vieira}
 \IEEEauthorblockA{\textit{IMD, Universidade Federal}\\
-\textit{do Rio Grande do Norte}\\
+\textit{do Rio Grande performancedo Norte}\\
 Natal, RN, Brazil \\
 carlosv@ufrn.edu.br}
 \and
@@ -63,40 +55,115 @@ Natal, RN, Brazil \\
 leobezerra@imd.ufrn.br}
 }
 
-
+% copyright notice
+\IEEEoverridecommandlockouts
+\IEEEpubid{\makebox[\columnwidth]{978-1-7281-8393-0/21/\$31.00~\copyright2021 IEEE \hfill}
+\hspace{\columnsep}\makebox[\columnwidth]{ }}
 
 \maketitle
+
+% copyright notice
+\IEEEpubidadjcol
+
 %%% LESLIE: remove the following line for submission
 % \pagestyle{plain}    % -- to make other pages number less.
 
 
 
-% \begin{abstract}
-% Neural architecture search~(NAS) is a field where computational effort poses a significant challenge, requiring large computing clusters and specialized hardware. Furthermore, the lack of common experimental guidelines often compromises NAS comparison or may \leslie{incur in}{induce} premature conclusions. In a recent work, \nasbench was proposed to help mitigate those factors, providing both a common benchmark and experimental guidelines for its use. In this work, we \leslie{}{discuss the design choices in \nasbench and} propose improvements that increase the potential of \leslie{\nasbench}{the benchmark}.
-% First, we bridge NAS and the research on anytime performance, showing how a bi-objective formulation of NAS can improve the insights provided \leslie{}{by \nasbench}. Then, we discuss choices made in the design of the benchmark, namely (i)~the fixed-size encoding, (ii)~the effects of the limited variability available, (iii)~\leslie{assessing}{the assessment of} algorithms only from a TPU time perspective, and; (iv)~the number of repetitions proposed.
-% We demonstrate our contributions assessing the best-performing algorithms originally benchmarked on \nasbench and also \irace, one of the best-performing algorithm configurators \leslie{(AC)}{} from the literature. Results indicate that (i)~the anytime performance methodology enriches the insights obtained from the assessment on the original \nasbench; (ii)~algorithm comparison is strongly affected by the design choices discussed, and; (iii)~the performance of SMAC in this benchmark is significantly improved by our alternative setups.
-% \end{abstract}
+\begin{abstract}
+Neural architecture search~(NAS) is a field where computational effort poses a significant challenge, requiring large computing clusters and specialized hardware. Furthermore, the lack of common experimental guidelines often compromises NAS comparison or induces premature conclusions. In a recent work, \nasbench was proposed to help mitigate those factors, providing both a common benchmark and experimental guidelines for its use. In this work, we discuss the design choices in \nasbench and propose improvements that increase the potential of the benchmark.
+First, we bridge NAS and the research on anytime performance, showing how a bi-objective formulation of NAS can improve the insights provided by \nasbench. Then, we discuss choices made in the design of the benchmark, namely (i)~the fixed-size encoding, (ii)~the effects of the limited variability available, (iii)~the assessment of algorithms only from a TPU time perspective, and; (iv)~the number of repetitions proposed.
+We demonstrate our contributions assessing the best-performing algorithms originally benchmarked on \nasbench and also \irace, one of the best-performing algorithm configurators from the literature. Results indicate that (i)~the anytime performance methodology enriches the insights obtained from the assessment on the original \nasbench; (ii)~algorithm comparison is strongly affected by the design choices discussed, and; (iii)~the performance of SMAC in this benchmark is significantly improved by our alternative setups.
+\end{abstract}
 
 % \begin{IEEEkeywords}
 % Neural architecture search, performance assessment, anytime optimization
 % \end{IEEEkeywords}
 
-% \input{sections/intro}
-% \input{sections/background}
-% \input{sections/guidelines}
-% \input{sections/final-quality}
-% \input{sections/anytime}
-% \input{sections/configurations}
-% \input{sections/conclusion}
+\input{sections/intro}
+\input{sections/background}
+\input{sections/guidelines}
+\input{sections/final-quality}
+\input{sections/anytime}
+\input{sections/configurations}
+\input{sections/conclusion}
 
-% \section*{Acknowledgment}
-% Leslie P\'erez C\'aceres acknowledges the support of Fondecyt project \#11190135.
-
-\appendices
-\input{sections/supplementary}
-
+\section*{Acknowledgment}
+Leslie P\'erez C\'aceres acknowledges the support of Fondecyt project \#11190135.
 
 \bibliographystyle{ieeetran}
 \bibliography{main}
+
+% \begin{thebibliography}{10}
+% \providecommand{\url}[1]{\texttt{#1}}
+% \providecommand{\urlprefix}{URL }
+% \providecommand{\doi}[1]{doi:\hspace{.16667em plus
+%   .08333em}\discretionary{}{}{}\href{https://doi.org/#1}{\urlstyle{rm}\nolinkurl{#1}}}
+
+% \bibitem{BezLopStu2020chapter}
+% Bezerra, L.C.T., L{\'o}pez-Ib{\'a}{\~n}ez, M., St{\"u}tzle, T.: Automatic
+%   configuration of multi-objective optimizers and multi-objective
+%   configuration. In: Bartz-Beielstein, T., et~al. (eds.) High-Performance
+%   Simulation-Based Optimization, pp. 69--92. Springer Cham (2020).
+
+% \bibitem{ElsMetHut2019nas-survey}
+% Elsken, T., Metzen, J.H., Hutter, F.: Neural architecture search: A survey.
+%   Journal of Machine Learning Research  \textbf{20},  1--21 (2019)
+
+% \bibitem{HutHooLey2011lion}
+% Hutter, F., Hoos, H.H., Leyton-Brown, K.: Sequential model-based optimization
+%   for general algorithm configuration. In: {Coello Coello}, C.A. (ed.) LION,
+%   LNCS, vol.~6683, pp. 507--523. Springer (2011)
+
+% \bibitem{Krizhevsky2009cifar}
+% Krizhevsky, A.: Learning Multiple Layers of Features from Tiny Images. Master's
+%   thesis, Department of Computer Science, University of Toronto (2009)
+
+% \bibitem{LiJamSal2018hyperband}
+% Li, L., Jamieson, K., DeSalvo, G., Rostamizadeh, A., Talwalkar, A.: Hyperband:
+%   A novel bandit-based approach to hyperparameter optimization. J.\@ Mach.\@
+%   Learn.\@ Res.  \textbf{18}(185),  1--52 (2018)
+
+% \bibitem{LopDubPerStuBir2016irace}
+% L{\'o}pez-Ib{\'a}{\~n}ez, M., Dubois-Lacoste, J., {P{\'e}rez C{\'a}ceres}, L.,
+%   St{\"u}tzle, T., Birattari, M.: The {\textsf{irace}} package: Iterated
+%   racing for automatic algorithm configuration. Oper. Res. Perspect.
+%   \textbf{3},  43--58 (2016). %\doi{10.1016/j.orp.2016.09.002}
+
+% \bibitem{LopPaqStu09emaa}
+% L{\'o}pez-Ib{\'a}{\~n}ez, M., Paquete, L., St{\"u}tzle, T.: Exploratory
+%   analysis of stochastic local search algorithms in biobjective optimization.
+%   In: Bartz-Beielstein, T., et~al. (eds.) Experimental Methods for the Analysis
+%   of Optimization Algorithms, pp. 209--222. Springer, Berlin, Germany (2010).
+%   %\doi{10.1007/978-3-642-02538-9\_9}
+
+% \bibitem{LopStu2013ejor}
+% L{\'o}pez-Ib{\'a}{\~n}ez, M., St{\"u}tzle, T.: Automatically improving the
+%   anytime behaviour of optimisation algorithms. Eur. J. Oper. Res.
+%   \textbf{235}(3),  569--582 (2014). %\doi{10.1016/j.ejor.2013.10.043}
+
+% \bibitem{ReaAggHuaLe2019re}
+% Real, E., Aggarwal, A., Huang, Y., Le, Q.V.: Regularized evolution for image
+%   classifier architecture search. In: AAAI. vol.~33, pp. 4780--4789 (2019)
+
+% \bibitem{YinKleChrReaMurHut2019nasbench}
+% Ying, C., Klein, A., Christiansen, E., Real, E., Murphy, K., Hutter, F.:
+%   {NAS-Bench-101}: Towards reproducible neural architecture search. In: ICML.
+%   pp. 7105--7114 (2019)
+
+% \bibitem{ZitThiLauFon2003:tec}
+% Zitzler, E., Thiele, L., Laumanns, M., Fonseca, C.M., {Grunert da Fonseca}, V.:
+%   Performance assessment of multiobjective optimizers: an analysis and review.
+%   {IEEE} Trans. Evol. Comput.  \textbf{7}(2),  117--132 (2003)
+
+% \bibitem{ZopLe2017nas}
+% Zoph, B., Le, Q.V.: Neural architecture search with reinforcement learning. In:
+%   ICLR. OpenReview.net (2017)
+
+% \bibitem{ZopVasShlLeh2018scalable}
+% Zoph, B., Vasudevan, V., Shlens, J., Le, Q.V.: Learning transferable
+%   architectures for scalable image recognition. In: CVPR. pp. 8697--8710 (2018)
+
+% \end{thebibliography}
 
 \end{document}
